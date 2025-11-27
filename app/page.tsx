@@ -1,65 +1,376 @@
-import Image from "next/image";
+'use client';
 
-export default function Home() {
+import { useRef } from 'react';
+import gsap from 'gsap';
+import { useGSAP } from '@gsap/react';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import Image from 'next/image';
+import StarWarsCrawl from './components/StarWarsCrawl';
+import ProductScroll from './components/ProductScroll';
+import EmailSignup from './components/EmailSignup';
+import Starfield from './components/Starfield';
+import CustomCursor from './components/CustomCursor';
+import SocialDock from './components/SocialDock';
+
+gsap.registerPlugin(ScrollTrigger);
+
+export default function DoorRevealSection() {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const perspectiveRef = useRef<HTMLDivElement>(null);
+  const logoRef = useRef<HTMLImageElement>(null);
+  const kainotRef = useRef<HTMLHeadingElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
+  const flashRef = useRef<HTMLDivElement>(null); // New Flash Ref
+
+  // New refs for Star Wars animation
+  const crawlContainerRef = useRef<HTMLDivElement>(null);
+  const crawlTextRef = useRef<HTMLDivElement>(null);
+  const scrollVideoRef = useRef<HTMLVideoElement>(null);
+  const videoOverlayRef = useRef<HTMLDivElement>(null);
+
+  // Starfield speed and color control
+  const starSpeedRef = useRef(0.5);
+  const starColorRef = useRef("255, 255, 255"); // Start white
+
+  const particleCount = 50; // Slightly fewer, sharper particles
+  const particlesArray = Array.from({ length: particleCount });
+
+  useGSAP(() => {
+    const tl = gsap.timeline({
+      scrollTrigger: {
+        trigger: containerRef.current,
+        start: 'top top',
+        end: '+=12000', // Increased scroll length to ensure crawl finishes
+        scrub: 1.2, // Slightly snappier scrub for a cleaner feel
+        pin: true,
+        refreshPriority: 1, // Ensure this calculates first
+      },
+    });
+
+    // --- SETUP: Sharper, Random Particles ---
+    gsap.set('.particle', {
+      x: () => gsap.utils.random(-100, 100),
+      y: () => gsap.utils.random(-100, 100),
+      z: () => gsap.utils.random(-500, 500),
+      // Smaller, sharper size range
+      width: () => gsap.utils.random(2, 5),
+      height: () => gsap.utils.random(2, 5),
+      opacity: 0,
+    });
+
+    // --- PHASE 1: The Singularity ---
+    tl.to(logoRef.current, {
+      scale: 0.9,
+      duration: 0.5,
+      ease: 'power2.in',
+    })
+      .to(logoRef.current, {
+        scale: 100, // Faster, bigger zoom
+        opacity: 0,
+        duration: 2.5,
+        ease: 'expo.in',
+      });
+
+    // --- PHASE 2: The Brand Reveal (Hollow Text) ---
+    tl.fromTo(kainotRef.current,
+      { opacity: 0, scale: 0.9, letterSpacing: '0em' },
+      { opacity: 1, scale: 1, letterSpacing: '0.15em', duration: 2, ease: 'power2.out' },
+      '-=1.5'
+    );
+
+    // --- PHASE 3: HYPERSPACE JUMP ---
+    // Accelerate stars to warp speed
+    tl.to(starSpeedRef, {
+      current: 50, // Warp speed!
+      duration: 3,
+      ease: 'power4.in',
+    }, '-=0.5');
+
+    // Fade out KAINOT text during warp
+    tl.to(kainotRef.current, {
+      opacity: 0,
+      scale: 2, // Fly towards camera
+      duration: 1.5,
+      ease: 'power2.in',
+    }, '<+=1');
+
+    // --- PHASE 4: THE FLASH & ARRIVAL ---
+    // White flash
+    tl.to(flashRef.current, {
+      opacity: 1,
+      duration: 0.1,
+      ease: 'power4.out',
+    })
+      .to(flashRef.current, {
+        opacity: 0,
+        duration: 0.5,
+        ease: 'power2.out',
+      });
+
+    // Reset star speed instantly after flash
+    tl.set(starSpeedRef, { current: 0.5 });
+
+
+    // --- PHASE 5: Content & Sharp Particle Big Bang ---
+    tl.fromTo(contentRef.current,
+      { y: 50, opacity: 0, scale: 0.95 },
+      { y: 0, opacity: 1, scale: 1, duration: 2, ease: 'power3.out' },
+      '-=0.4' // Slam in right after flash
+    );
+
+    // Fade out video overlay AFTER content reveals
+    if (videoOverlayRef.current) {
+      tl.to(videoOverlayRef.current, {
+        opacity: 0,
+        duration: 2,
+        ease: 'power2.inOut',
+      }, '<+=1'); // Start fading shortly after content appears
+    }
+
+    tl.to('.particle', {
+      x: () => gsap.utils.random(-800, 800),
+      y: () => gsap.utils.random(-500, 500),
+      z: () => gsap.utils.random(500, 1500), // Fly further out
+      opacity: () => gsap.utils.random(0.5, 1), // Higher opacity, less fade
+      duration: 4,
+      ease: 'expo.out',
+    }, '-=2');
+
+    // --- PHASE 6: Star Wars Scroll & Color Inversion ---
+    // Fade out "Coming Soon" content
+    tl.to(contentRef.current, {
+      opacity: 0,
+      scale: 0.8,
+      duration: 2,
+      ease: 'power2.in',
+    }, '+=1'); // Hold for a moment
+
+    // Fade in Star Wars container
+    tl.to(crawlContainerRef.current, {
+      opacity: 1,
+      duration: 1,
+      ease: 'power2.out',
+    });
+
+    // Fade out scroll video
+    if (scrollVideoRef.current) {
+      tl.to(scrollVideoRef.current, {
+        opacity: 0,
+        duration: 1,
+        ease: 'power2.out',
+      }, '<');
+    }
+
+    // --- COLOR INVERSION START ---
+    // Animate background to white
+    tl.to(containerRef.current, {
+      backgroundColor: '#ffffff',
+      duration: 2,
+      ease: 'power2.inOut',
+    }, '<');
+
+    // Animate stars to black (using a proxy object approach or direct ref tween if supported,
+    // but for string refs we need a custom tween or just snap it.
+    // A cleaner way for canvas is to tween a proxy object and update the ref in onUpdate)
+    const colorProxy = { r: 255, g: 255, b: 255 };
+    tl.to(colorProxy, {
+      r: 0, g: 0, b: 0,
+      duration: 2,
+      ease: 'power2.inOut',
+      onUpdate: () => {
+        starColorRef.current = `${Math.round(colorProxy.r)}, ${Math.round(colorProxy.g)}, ${Math.round(colorProxy.b)}`;
+      }
+    }, '<');
+
+    // Animate crawl text to black
+    tl.to(crawlContainerRef.current, {
+      '--crawl-color': '#000000',
+      duration: 2,
+      ease: 'power2.inOut',
+    }, '<');
+    // --- COLOR INVERSION END ---
+
+    // Animate the crawl text
+    tl.fromTo(crawlTextRef.current,
+      {
+        top: '100%', // Start below screen
+        rotateX: 25, // Match CSS rotation
+        z: 0
+      },
+      {
+        top: '-250%', // Scroll far up
+        rotateX: 25, // Maintain rotation
+        z: -1500, // Move away from camera
+        duration: 25, // Slower scroll
+        ease: 'none',
+      }, '<');
+
+    // --- PHASE 7: FADE BACK TO BLACK ---
+    // Fade background back to black before product scroll
+    tl.to(containerRef.current, {
+      backgroundColor: '#000000',
+      duration: 2,
+      ease: 'power2.inOut',
+    }, '-=3'); // Start fading back before crawl fully finishes
+
+    // Fade stars back to white
+    tl.to(colorProxy, {
+      r: 255, g: 255, b: 255,
+      duration: 2,
+      ease: 'power2.inOut',
+      onUpdate: () => {
+        starColorRef.current = `${Math.round(colorProxy.r)}, ${Math.round(colorProxy.g)}, ${Math.round(colorProxy.b)}`;
+      }
+    }, '<');
+
+    // --- SCROLL VIDEO SCRUBBING (Moved to end to capture full duration) ---
+    if (scrollVideoRef.current) {
+      const video = scrollVideoRef.current;
+
+      // Force pause immediately
+      video.pause();
+      video.currentTime = 0;
+
+      const videoDuration = 10; // Fallback
+
+      // Add tween covering the entire timeline duration
+      tl.to(video, {
+        currentTime: video.duration || videoDuration,
+        ease: "none",
+        duration: tl.duration(),
+        onStart: () => video.pause(),
+      }, 0);
+    }
+
+  }, { scope: containerRef });
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
+    <>
+      <CustomCursor />
+      <SocialDock />
+      <main className="w-full bg-black relative z-40">
+        <div
+          ref={containerRef}
+          className="relative h-screen w-full bg-black flex items-center justify-center overflow-hidden perspective-container"
+        >
+          {/* Keeps the grain, but it's subtle over pure black. Adds texture without color. */}
+          <div className="absolute inset-0 z-[60] pointer-events-none opacity-[0.08] bg-[url('https://grainy-gradients.vercel.app/noise.svg')] mix-blend-overlay"></div>
+
+          {/* Scroll Driven Video with Overlay */}
+          <div className="absolute inset-0 z-0">
+            <video
+              ref={scrollVideoRef}
+              src="/video2.mp4"
+              muted
+              playsInline
+              preload="auto"
+              className="absolute inset-0 w-full h-full object-cover opacity-60" // Reduced opacity to blend
             />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+            <div ref={videoOverlayRef} className="absolute inset-0 bg-black/60"></div> {/* Dark overlay */}
+          </div>
+
+          <Starfield speedRef={starSpeedRef} starColorRef={starColorRef} /> {/* Starfield Background with speed and color control */}
+
+          {/* --- LAYER 1: CONTENT --- */}
+          <div ref={contentRef} className="relative z-10 flex flex-col items-center justify-center text-center">
+            <div className="relative">
+              <div className="flex flex-col items-center justify-center w-full">
+                {/* TITLE: COMING SOON */}
+                <h1 className="text-7xl md:text-9xl font-black font-display text-white tracking-tighter leading-[1.1] mix-blend-difference z-20 flex flex-col items-center">
+                  <span>COMING</span>
+                  <span className="text-transparent bg-clip-text bg-gradient-to-b from-white via-gray-200 to-gray-600">SOON</span>
+                </h1>
+
+                {/* SUB TITLE: The World Changes... */}
+                <div className="relative z-30 mt-8 md:mt-12">
+                  <p className="text-white/80 text-xs md:text-xl font-light tracking-[0.5em] uppercase text-center max-w-4xl mx-auto px-4">
+                    The world changes when you stop trying to fit in.
+                  </p>
+                </div>
+
+                {/* PARAGRAPH: KaiKnot is... */}
+                <div className="mt-8 md:mt-12">
+                  <p className="text-transparent bg-clip-text bg-gradient-to-r from-white via-gray-300 to-gray-500 text-sm md:text-2xl font-medium tracking-[0.3em] uppercase text-center">
+                    KaiKnot is Knotted by Individuality.
+                  </p>
+                </div>
+              </div>
+              {/* BLUE GLOW REMOVED HERE */}
+            </div>
+
+            {/* Particles Container - No Glows */}
+            <div className="absolute inset-0 pointer-events-none flex items-center justify-center z-10 preserve-3d">
+              {particlesArray.map((_, i) => (
+                <div
+                  key={i}
+                  // Removed shadow-lg class. Just flat white circles.
+                  className="particle absolute rounded-full bg-white"
+                  style={{
+                    left: '50%',
+                    top: '50%',
+                    width: '0px',
+                    height: '0px'
+                  }}
+                />
+              ))}
+            </div>
+          </div>
+
+          {/* LIGHT REF LAYER REMOVED HERE */}
+
+          {/* --- LAYER 3: FLASH OVERLAY --- */}
+          <div
+            ref={flashRef}
+            className="absolute inset-0 z-[70] bg-white pointer-events-none opacity-0"
+          />
+
+          {/* --- LAYER 4: KAINOT TEXT (Hollow B&W) --- */}
+          <h1
+            ref={kainotRef}
+            className="absolute z-40 text-7xl md:text-[12rem] font-black font-display tracking-widest text-center opacity-0 pointer-events-none"
+            style={{
+              color: 'transparent',
+              // Thinner, sharper stroke
+              WebkitTextStroke: '1px rgba(255, 255, 255, 0.9)',
+            }}
           >
-            Documentation
-          </a>
+            KAINOT
+          </h1>
+
+          {/* --- LAYER 5: LOGO (Clean B&W) --- */}
+          <div className="absolute z-50 flex items-center justify-center pointer-events-none mix-blend-exclusion">
+            <Image
+              ref={logoRef}
+              src="/logo.png"
+              alt="Kainot Logo"
+              width={300}
+              height={300}
+              // Removed drop-shadow
+              className="w-32 h-32 md:w-64 md:h-64 object-contain"
+            />
+          </div>
+          <StarWarsCrawl ref={crawlTextRef} containerRef={crawlContainerRef} />
         </div>
       </main>
-    </div>
+      <ProductScroll />
+      <footer className="w-full h-screen bg-black text-white flex flex-col items-center justify-center z-50 relative overflow-hidden">
+        {/* Video Background */}
+        <video
+          autoPlay
+          loop
+          muted
+          playsInline
+          className="absolute inset-0 w-full h-full object-cover z-0"
+        >
+          <source src="/video.mp4" type="video/mp4" />
+        </video>
+
+        {/* Black Overlay */}
+        <div className="absolute inset-0 bg-black/70 z-10"></div>
+
+        {/* Content */}
+        <EmailSignup />
+      </footer>
+    </>
   );
 }

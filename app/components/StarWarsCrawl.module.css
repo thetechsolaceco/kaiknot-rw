@@ -1,0 +1,99 @@
+.starWarsContainer {
+    width: 100%;
+    height: 100vh;
+    overflow: hidden;
+    position: absolute;
+    inset: 0;
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    /* Align to bottom so we can scroll up */
+    perspective: 400px;
+    /* Standard perspective */
+    perspective-origin: 50% 50%;
+    /* Center the vanishing point */
+    background: transparent;
+    z-index: 100;
+    pointer-events: none;
+}
+
+.fade {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 40vh;
+    /* Reduce height of fade mask */
+    background-image: linear-gradient(180deg, black 0%, transparent 100%);
+    /* Fade from black at top to transparent */
+    z-index: 101;
+    /* Ensure it's above the text */
+}
+
+.crawlWrapper {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    perspective: 250px;
+    /* Reduced perspective for more dramatic angle */
+    overflow: hidden;
+    font-family: 'Bricolage Grotesque', sans-serif;
+    /* Updated font */
+}
+
+.starWars {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    /* Fill container */
+    display: flex;
+    justify-content: center;
+    transform-style: preserve-3d;
+    /* Essential for 3D children */
+}
+
+.crawl {
+    position: relative;
+    top: 100%;
+    /* Start below the screen */
+    width: 95%;
+    /* Wider width */
+    max-width: 1800px;
+    /* Allow much wider text */
+    color: var(--crawl-color, #fff);
+    /* White text default, animated via variable */
+    font-family: "Pathway Gothic One", sans-serif;
+    font-weight: 600;
+    letter-spacing: 6px;
+    line-height: 150%;
+    font-size: 400%;
+    /* Large text */
+    text-align: justify;
+    transform-origin: 50% 0%;
+    /* Rotate from top center of the element */
+    transform: rotateX(25deg);
+    /* The tilt */
+}
+
+.crawl h1 {
+    margin: 0 0 100px 0;
+    font-size: 100px;
+    font-weight: bold;
+    text-align: center;
+    color: var(--crawl-color, #fff);
+    /* Use variable for animation */
+}
+
+.crawl>.title {
+    font-size: 90%;
+    text-align: center;
+}
+
+.crawl>.title h1 {
+    margin: 0 0 100px;
+    text-transform: uppercase;
+}
+
+.crawl p {
+    margin-bottom: 50px;
+}

@@ -56,18 +56,19 @@
     position: relative;
     top: 100%;
     /* Start below the screen */
-    width: 95%;
-    /* Wider width */
+    width: 90%;
+    /* Wider width on mobile */
     max-width: 1800px;
     /* Allow much wider text */
     color: var(--crawl-color, #fff);
     /* White text default, animated via variable */
     font-family: "Pathway Gothic One", sans-serif;
     font-weight: 600;
-    letter-spacing: 6px;
+    letter-spacing: 2px;
+    /* Reduced spacing for mobile */
     line-height: 150%;
-    font-size: 400%;
-    /* Large text */
+    font-size: 200%;
+    /* Smaller text for mobile */
     text-align: justify;
     transform-origin: 50% 0%;
     /* Rotate from top center of the element */
@@ -75,13 +76,30 @@
     /* The tilt */
 }
 
+@media (min-width: 768px) {
+    .crawl {
+        width: 95%;
+        letter-spacing: 6px;
+        font-size: 400%;
+    }
+}
+
 .crawl h1 {
-    margin: 0 0 100px 0;
-    font-size: 100px;
+    margin: 0 0 50px 0;
+    /* Reduced margin for mobile */
+    font-size: 3rem;
+    /* Smaller font for mobile */
     font-weight: bold;
     text-align: center;
     color: var(--crawl-color, #fff);
     /* Use variable for animation */
+}
+
+@media (min-width: 768px) {
+    .crawl h1 {
+        margin: 0 0 100px 0;
+        font-size: 100px;
+    }
 }
 
 .crawl>.title {

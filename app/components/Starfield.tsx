@@ -23,7 +23,8 @@ const Starfield = ({ speedRef, starColorRef }: StarfieldProps) => {
         canvas.height = height;
 
         const stars: { x: number; y: number; z: number; size: number }[] = [];
-        const numStars = 800;
+        const isMobile = width < 768;
+        const numStars = isMobile ? 200 : 800;
         // Use internal speed if no ref provided, but initialize from ref if present
         let internalSpeed = speedRef ? speedRef.current : 0.5;
         let scrollY = 0;

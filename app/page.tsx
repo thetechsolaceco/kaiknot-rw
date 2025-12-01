@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
@@ -34,7 +34,13 @@ export default function DoorRevealSection() {
   const starSpeedRef = useRef(0.5);
   const starColorRef = useRef("255, 255, 255"); // Start white
 
-  const particleCount = 50; // Slightly fewer, sharper particles
+  const [isMobile, setIsMobile] = React.useState(false);
+
+  useEffect(() => {
+    setIsMobile(window.innerWidth < 768);
+  }, []);
+
+  const particleCount = isMobile ? 20 : 50; // Fewer particles on mobile
   const particlesArray = Array.from({ length: particleCount });
 
   useGSAP(() => {
@@ -73,12 +79,17 @@ export default function DoorRevealSection() {
         ease: 'expo.in',
       });
 
-    // --- PHASE 2: The Brand Reveal (Hollow Text) ---
+    // --- PHASE 2: The Brand Reveal (Hollow Text -> Filled) ---
     tl.fromTo(kainotRef.current,
-      { opacity: 0, scale: 0.9, letterSpacing: '0em' },
+      { opacity: 0, scale: 0.9, letterSpacing: '0em', color: 'transparent' },
       { opacity: 1, scale: 1, letterSpacing: '0.15em', duration: 2, ease: 'power2.out' },
-      '-=1.5'
-    );
+      '-=0.5' // Start slightly before logo finishes
+    )
+      .to(kainotRef.current, {
+        color: '#ffffff', // Fill with white
+        duration: 1.5,
+        ease: 'power2.inOut'
+      }, '-=1'); // Start filling before the scale finishes
 
     // --- PHASE 3: HYPERSPACE JUMP ---
     // Accelerate stars to warp speed
@@ -245,7 +256,12 @@ export default function DoorRevealSection() {
     }
 
     // --- MOUSE MOVEMENT (Parallax & Spotlight) ---
+    let lastCall = 0;
     const handleMouseMove = (e: MouseEvent) => {
+      const now = Date.now();
+      if (now - lastCall < 16) return; // Throttle to ~60fps
+      lastCall = now;
+
       if (!textContainerRef.current || !spotlightRef.current) return;
 
       const { clientX, clientY } = e;
@@ -286,7 +302,8 @@ export default function DoorRevealSection() {
           className="relative h-screen w-full bg-black flex items-center justify-center overflow-hidden perspective-container"
         >
           {/* Keeps the grain, but it's subtle over pure black. Adds texture without color. */}
-          <div className="absolute inset-0 z-[60] pointer-events-none opacity-[0.08] bg-[url('https://grainy-gradients.vercel.app/noise.svg')] mix-blend-overlay"></div>
+          {/* Keeps the grain, but it's subtle over pure black. Adds texture without color. Hidden on mobile for performance. */}
+          <div className="absolute inset-0 z-[60] pointer-events-none opacity-[0.08] bg-[url('https://grainy-gradients.vercel.app/noise.svg')] mix-blend-overlay hidden md:block"></div>
 
           {/* Scroll Driven Video with Overlay */}
           <div className="absolute inset-0 z-0">
@@ -314,24 +331,24 @@ export default function DoorRevealSection() {
             <div className="relative z-10" ref={textContainerRef}>
               <div className="flex flex-col items-center justify-center w-full">
                 {/* TITLE: COMING SOON */}
-                <h1 className="text-7xl md:text-9xl font-black font-display text-white tracking-tighter leading-[1.1] mix-blend-difference z-20 flex flex-col items-center">
+                <h1 className="text-8xl md:text-[160px] font-black font-display text-white tracking-tighter leading-[1.1] mix-blend-difference z-20 flex flex-col items-center">
                   <span>COMING</span>
                   <span className="text-transparent bg-clip-text bg-gradient-to-b from-white via-gray-200 to-gray-600">SOON</span>
                 </h1>
 
                 {/* SUB TITLE: The World Changes... */}
                 <div className="relative z-30 mt-8 md:mt-12">
-                  <p className="text-white/80 text-xs md:text-xl font-light tracking-[0.5em] uppercase text-center max-w-4xl mx-auto px-4">
-                    The world changes when you stop trying to fit in.
+                  <p className="text-white/80 text-xs md:text-xl font-semibold tracking-[0.5em] uppercase text-center max-w-5xl mx-auto px-4">
+                    The world changes when you stop trying to fit in. KaiKnot is Knotted by Individuality
                   </p>
                 </div>
 
                 {/* PARAGRAPH: KaiKnot is... */}
-                <div className="mt-8 md:mt-12">
+                {/* <div className="mt-8 md:mt-12">
                   <p className="text-transparent bg-clip-text bg-gradient-to-r from-white via-gray-300 to-gray-500 text-sm md:text-2xl font-medium tracking-[0.3em] uppercase text-center">
-                    KaiKnot is Knotted by Individuality.
+
                   </p>
-                </div>
+                </div> */}
               </div>
               {/* BLUE GLOW REMOVED HERE */}
             </div>

@@ -14,7 +14,7 @@ const StarWarsCrawl = forwardRef<HTMLDivElement, StarWarsCrawlProps>(({ containe
             <section className={styles.starWars}>
                 <div ref={ref} className={styles.crawl}>
                     <div className={styles.title}>
-                        <p>KaiKnot</p>
+                        <p className="font-display font-black text-7xl md:text-9xl tracking-widest mb-4">KaiKnot</p>
                         <h1>Glimpse of What to Expect</h1>
                     </div>
                     <p>

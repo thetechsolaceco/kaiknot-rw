@@ -14,7 +14,9 @@ import SocialDock from './components/SocialDock';
 
 gsap.registerPlugin(ScrollTrigger);
 
-export default function DoorRevealSection() {
+import Preloader from "./components/Preloader";
+
+export default function Home() {
   const containerRef = useRef<HTMLDivElement>(null);
   const perspectiveRef = useRef<HTMLDivElement>(null);
   const logoRef = useRef<HTMLImageElement>(null);
@@ -255,35 +257,32 @@ export default function DoorRevealSection() {
       }, 0);
     }
 
-    // --- MOUSE MOVEMENT (Parallax & Spotlight) ---
-    let lastCall = 0;
+    // Mouse move effect for parallax and spotlight - DESKTOP ONLY
     const handleMouseMove = (e: MouseEvent) => {
-      const now = Date.now();
-      if (now - lastCall < 16) return; // Throttle to ~60fps
-      lastCall = now;
+      if (window.innerWidth < 768) return; // Disable on mobile
 
-      if (!textContainerRef.current || !spotlightRef.current) return;
+      if (!containerRef.current || !textContainerRef.current || !spotlightRef.current || !perspectiveRef.current) return;
 
       const { clientX, clientY } = e;
-      const x = (clientX / window.innerWidth - 0.5) * 2; // -1 to 1
-      const y = (clientY / window.innerHeight - 0.5) * 2; // -1 to 1
+      const { innerWidth, innerHeight } = window;
 
-      // Parallax Text
-      gsap.to(textContainerRef.current, {
-        x: x * 30, // Move 30px
-        y: y * 30,
-        rotationY: x * 5, // Tilt
-        rotationX: -y * 5,
-        duration: 1,
-        ease: "power2.out"
-      });
-
-      // Spotlight
+      // Spotlight follows cursor
       gsap.to(spotlightRef.current, {
         x: clientX,
         y: clientY,
-        duration: 0.5,
+        duration: 0.1, // Fast follow
         ease: "power2.out"
+      });
+
+      // 3D Parallax for Text
+      const xPos = (clientX / innerWidth - 0.5) * 20; // -10 to 10 deg
+      const yPos = (clientY / innerHeight - 0.5) * 20;
+
+      gsap.to(perspectiveRef.current, {
+        rotationY: xPos,
+        rotationX: -yPos,
+        duration: 1,
+        ease: "power3.out"
       });
     };
 
@@ -296,7 +295,9 @@ export default function DoorRevealSection() {
     <>
       <CustomCursor />
       <SocialDock />
-      <main className="w-full bg-black relative z-40">
+      <main className="bg-black min-h-screen w-full overflow-x-hidden relative selection:bg-white/20">
+        <Preloader />
+        {/* Grain Overlay */}
         <div
           ref={containerRef}
           className="relative h-screen w-full bg-black flex items-center justify-center overflow-hidden perspective-container"

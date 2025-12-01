@@ -24,7 +24,7 @@ const Starfield = ({ speedRef, starColorRef }: StarfieldProps) => {
 
         const stars: { x: number; y: number; z: number; size: number }[] = [];
         const isMobile = width < 768;
-        const numStars = isMobile ? 200 : 800;
+        const numStars = isMobile ? 50 : 800; // Drastically reduce stars on mobile
         // Use internal speed if no ref provided, but initialize from ref if present
         let internalSpeed = speedRef ? speedRef.current : 0.5;
         let scrollY = 0;
@@ -71,24 +71,27 @@ const Starfield = ({ speedRef, starColorRef }: StarfieldProps) => {
                 const y = (star.y / star.z) * height + height / 2;
                 const size = (1 - star.z / width) * star.size * 2;
 
-                // Warp effect: stretch star based on speed
-                const length = Math.max(size, size * (internalSpeed * 2));
-
                 if (x >= 0 && x <= width && y >= 0 && y <= height) {
                     const brightness = 1 - star.z / width;
-                    // Use dynamic color
                     ctx.fillStyle = `rgba(${starColor}, ${brightness})`;
-                    ctx.beginPath();
-                    // Draw as a line (warp) radiating from center
-                    const angle = Math.atan2(y - height / 2, x - width / 2);
-                    const xEnd = x + Math.cos(angle) * length;
-                    const yEnd = y + Math.sin(angle) * length;
 
-                    ctx.moveTo(x, y);
-                    ctx.lineTo(xEnd, yEnd);
-                    ctx.strokeStyle = `rgba(${starColor}, ${brightness})`;
-                    ctx.lineWidth = size;
-                    ctx.stroke();
+                    if (isMobile) {
+                        // Simple square for mobile - much faster
+                        ctx.fillRect(x, y, size, size);
+                    } else {
+                        // Warp effect for desktop
+                        const length = Math.max(size, size * (internalSpeed * 2));
+                        ctx.beginPath();
+                        const angle = Math.atan2(y - height / 2, x - width / 2);
+                        const xEnd = x + Math.cos(angle) * length;
+                        const yEnd = y + Math.sin(angle) * length;
+
+                        ctx.moveTo(x, y);
+                        ctx.lineTo(xEnd, yEnd);
+                        ctx.strokeStyle = `rgba(${starColor}, ${brightness})`;
+                        ctx.lineWidth = size;
+                        ctx.stroke();
+                    }
                 }
             });
 

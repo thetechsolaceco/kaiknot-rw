@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useRef } from "react";
+import React, { useRef, useState } from 'react';
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -9,6 +9,41 @@ gsap.registerPlugin(ScrollTrigger);
 
 const EmailSignup = () => {
     const containerRef = useRef<HTMLDivElement>(null);
+    const [email, setEmail] = useState('');
+    const [status, setStatus] = useState<{ type: 'success' | 'error' | null; message: string }>({ type: null, message: '' });
+    const [loading, setLoading] = useState(false);
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (email) {
+            setLoading(true);
+            setStatus({ type: null, message: '' });
+            try {
+                const res = await fetch('/api/signup', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ email }),
+                });
+
+                const data = await res.json();
+
+                if (res.ok) {
+                    console.log('Signed up:', email);
+                    setEmail('');
+                    setStatus({ type: 'success', message: 'Thank you for subscribing!' });
+                } else {
+                    setStatus({ type: 'error', message: data.error || 'Something went wrong.' });
+                }
+            } catch (error) {
+                console.error('Signup error:', error);
+                setStatus({ type: 'error', message: 'Failed to subscribe. Please try again.' });
+            } finally {
+                setLoading(false);
+            }
+        }
+    };
     const contentRef = useRef<HTMLDivElement>(null);
 
     useGSAP(() => {
@@ -41,18 +76,29 @@ const EmailSignup = () => {
                     Join the KaiKnot tribe for exclusive early access, first looks at our concept drops, and launch updates.
                 </p>
 
-                <form className="flex flex-col md:flex-row gap-4 w-full max-w-md mx-auto">
-                    <input
-                        type="email"
-                        placeholder="Enter your email"
-                        className="flex-1 bg-white/10 border border-white/20 rounded-full px-6 py-4 text-white placeholder-gray-400 focus:outline-none focus:border-white transition-colors font-sans"
-                    />
-                    <button
-                        type="submit"
-                        className="bg-white text-black font-bold font-sans rounded-full px-8 py-4 hover:bg-gray-200 transition-colors uppercase tracking-wider"
-                    >
-                        Notify Me
-                    </button>
+                <form onSubmit={handleSubmit} className="flex flex-col items-center gap-4 w-full max-w-md mx-auto">
+                    <div className="flex w-full border-b border-white/30 focus-within:border-white transition-colors">
+                        <input
+                            type="email"
+                            placeholder="ENTER YOUR EMAIL"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            className="bg-transparent w-full py-4 text-white placeholder-white/50 focus:outline-none font-light tracking-widest text-sm md:text-base"
+                            required
+                        />
+                        <button
+                            type="submit"
+                            disabled={loading}
+                            className="text-white/70 hover:text-white transition-colors uppercase tracking-widest text-xs md:text-sm disabled:opacity-50"
+                        >
+                            {loading ? '...' : 'SUBSCRIBE'}
+                        </button>
+                    </div>
+                    {status.message && (
+                        <p className={`text-xs tracking-widest ${status.type === 'success' ? 'text-green-400' : 'text-red-400'}`}>
+                            {status.message}
+                        </p>
+                    )}
                 </form>
 
 

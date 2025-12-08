@@ -1,13 +1,22 @@
 "use client";
 
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import gsap from "gsap";
 
 const CustomCursor = () => {
     const cursorRef = useRef<HTMLDivElement>(null);
     const followerRef = useRef<HTMLDivElement>(null);
+    const [isMobile, setIsMobile] = useState(false);
 
     useEffect(() => {
+        // Detect mobile devices
+        setIsMobile(window.innerWidth < 768 || 'ontouchstart' in window);
+    }, []);
+
+    useEffect(() => {
+        // Don't run cursor logic on mobile
+        if (isMobile) return;
+
         const cursor = cursorRef.current;
         const follower = followerRef.current;
 
@@ -54,7 +63,10 @@ const CustomCursor = () => {
                 link.removeEventListener("mouseleave", handleUnhover);
             });
         };
-    }, []);
+    }, [isMobile]);
+
+    // Don't render cursor on mobile
+    if (isMobile) return null;
 
     return (
         <>

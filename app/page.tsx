@@ -42,16 +42,17 @@ export default function Home() {
     setIsMobile(window.innerWidth < 768);
   }, []);
 
-  const particleCount = isMobile ? 20 : 50; // Fewer particles on mobile
+  const particleCount = isMobile ? 0 : 50; // Disable particles on mobile for performance
   const particlesArray = Array.from({ length: particleCount });
 
   useGSAP(() => {
+    const isMobileDevice = window.innerWidth < 768;
     const tl = gsap.timeline({
       scrollTrigger: {
         trigger: containerRef.current,
         start: 'top top',
         end: '+=12000', // Increased scroll length to ensure crawl finishes
-        scrub: 1.2, // Slightly snappier scrub for a cleaner feel
+        scrub: isMobileDevice ? 2 : 1.2, // Less frequent updates on mobile
         pin: true,
         refreshPriority: 1, // Ensure this calculates first
       },
@@ -73,24 +74,27 @@ export default function Home() {
       scale: 0.9,
       duration: 0.5,
       ease: 'power2.in',
+      force3D: true,
     })
       .to(logoRef.current, {
         scale: 100, // Faster, bigger zoom
         opacity: 0,
         duration: 2.5,
         ease: 'expo.in',
+        force3D: true,
       });
 
     // --- PHASE 2: The Brand Reveal (Hollow Text -> Filled) ---
     tl.fromTo(kainotRef.current,
       { opacity: 0, scale: 0.9, letterSpacing: '0em', color: 'transparent' },
-      { opacity: 1, scale: 1, letterSpacing: '0.15em', duration: 2, ease: 'power2.out' },
+      { opacity: 1, scale: 1, letterSpacing: '0.15em', duration: 2, ease: 'power2.out', force3D: true },
       '-=0.5' // Start slightly before logo finishes
     )
       .to(kainotRef.current, {
         color: '#ffffff', // Fill with white
         duration: 1.5,
-        ease: 'power2.inOut'
+        ease: 'power2.inOut',
+        force3D: true,
       }, '-=1'); // Start filling before the scale finishes
 
     // --- PHASE 3: HYPERSPACE JUMP ---
@@ -107,6 +111,7 @@ export default function Home() {
       scale: 2, // Fly towards camera
       duration: 1.5,
       ease: 'power2.in',
+      force3D: true,
     }, '<+=1');
 
     // --- PHASE 4: THE FLASH & ARRIVAL ---
@@ -129,7 +134,7 @@ export default function Home() {
     // --- PHASE 5: Content & Sharp Particle Big Bang ---
     tl.fromTo(contentRef.current,
       { y: 50, opacity: 0, scale: 0.95 },
-      { y: 0, opacity: 1, scale: 1, duration: 2, ease: 'power3.out' },
+      { y: 0, opacity: 1, scale: 1, duration: 2, ease: 'power3.out', force3D: true },
       '-=0.4' // Slam in right after flash
     );
 
@@ -142,14 +147,18 @@ export default function Home() {
       }, '<+=1'); // Start fading shortly after content appears
     }
 
-    tl.to('.particle', {
-      x: () => gsap.utils.random(-800, 800),
-      y: () => gsap.utils.random(-500, 500),
-      z: () => gsap.utils.random(500, 1500), // Fly further out
-      opacity: () => gsap.utils.random(0.5, 1), // Higher opacity, less fade
-      duration: 4,
-      ease: 'expo.out',
-    }, '-=2');
+    // Only animate particles if not on mobile
+    if (!isMobileDevice && particleCount > 0) {
+      tl.to('.particle', {
+        x: () => gsap.utils.random(-800, 800),
+        y: () => gsap.utils.random(-500, 500),
+        z: () => gsap.utils.random(500, 1500), // Fly further out
+        opacity: () => gsap.utils.random(0.5, 1), // Higher opacity, less fade
+        duration: 4,
+        ease: 'expo.out',
+        force3D: true,
+      }, '-=2');
+    }
 
     // --- PHASE 6: Star Wars Scroll & Color Inversion ---
     // Fade out "Coming Soon" content
@@ -158,6 +167,7 @@ export default function Home() {
       scale: 0.8,
       duration: 2,
       ease: 'power2.in',
+      force3D: true,
     }, '+=1'); // Hold for a moment
 
     // Fade in Star Wars container
@@ -218,6 +228,7 @@ export default function Home() {
         z: -1500, // Move away from camera
         duration: 25, // Slower scroll
         ease: 'none',
+        force3D: true,
       }, '<');
 
     // --- PHASE 7: FADE BACK TO BLACK ---
@@ -271,7 +282,8 @@ export default function Home() {
         x: clientX,
         y: clientY,
         duration: 0.1, // Fast follow
-        ease: "power2.out"
+        ease: "power2.out",
+        force3D: true,
       });
 
       // 3D Parallax for Text
@@ -282,12 +294,16 @@ export default function Home() {
         rotationY: xPos,
         rotationX: -yPos,
         duration: 1,
-        ease: "power3.out"
+        ease: "power3.out",
+        force3D: true,
       });
     };
 
-    window.addEventListener("mousemove", handleMouseMove);
-    return () => window.removeEventListener("mousemove", handleMouseMove);
+    // Only add mouse listener on desktop
+    if (!isMobileDevice) {
+      window.addEventListener("mousemove", handleMouseMove);
+      return () => window.removeEventListener("mousemove", handleMouseMove);
+    }
 
   }, { scope: containerRef });
 

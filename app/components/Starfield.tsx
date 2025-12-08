@@ -24,7 +24,7 @@ const Starfield = ({ speedRef, starColorRef }: StarfieldProps) => {
 
         const stars: { x: number; y: number; z: number; size: number }[] = [];
         const isMobile = width < 768;
-        const numStars = isMobile ? 50 : 800; // Drastically reduce stars on mobile
+        const numStars = isMobile ? 30 : 800; // Drastically reduce stars on mobile
         // Use internal speed if no ref provided, but initialize from ref if present
         let internalSpeed = speedRef ? speedRef.current : 0.5;
         let scrollY = 0;

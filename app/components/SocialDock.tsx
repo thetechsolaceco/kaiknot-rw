@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useRef } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -11,8 +11,16 @@ import { FaInstagram, FaPinterest } from "react-icons/fa";
 
 const SocialDock = () => {
     const dockRef = useRef<HTMLDivElement>(null);
+    const [isMobile, setIsMobile] = useState(false);
+
+    useEffect(() => {
+        // Detect mobile devices
+        setIsMobile(window.innerWidth < 768);
+    }, []);
 
     useGSAP(() => {
+        // Don't run animations on mobile
+        if (isMobile) return;
         // Fade in when scrolling past 100px
         gsap.to(dockRef.current, {
             opacity: 1,
@@ -23,7 +31,10 @@ const SocialDock = () => {
                 toggleActions: "play none none reverse",
             },
         });
-    }, { scope: dockRef });
+    }, { scope: dockRef, dependencies: [isMobile] });
+
+    // Don't render on mobile
+    if (isMobile) return null;
 
     return (
         <div

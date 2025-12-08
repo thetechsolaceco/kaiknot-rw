@@ -55,13 +55,14 @@ const ProductScroll = () => {
         const totalWidth = sectionRef.current?.scrollWidth || 0;
         const viewportWidth = window.innerWidth;
         const scrollDistance = -(totalWidth - viewportWidth + 100); // Scroll full width + buffer
+        const isMobile = window.innerWidth < 768;
 
         const tl = gsap.timeline({
             scrollTrigger: {
                 trigger: triggerRef.current,
                 start: "top top",
                 end: "+=3000",
-                scrub: 1,
+                scrub: isMobile ? 2 : 1, // Less frequent updates on mobile
                 pin: true,
             },
         });
@@ -69,26 +70,30 @@ const ProductScroll = () => {
         tl.to(sectionRef.current, {
             x: scrollDistance,
             ease: "none",
+            force3D: true, // Hardware acceleration
         });
 
-        // Parallax Effect
-        const images = sectionRef.current?.querySelectorAll(".product-image");
-        if (images) {
-            images.forEach((img) => {
-                gsap.fromTo(img,
-                    { x: -30 }, // Reduced range to prevent gaps
-                    {
-                        x: 30,
-                        ease: "none",
-                        scrollTrigger: {
-                            trigger: triggerRef.current,
-                            start: "top top",
-                            end: "+=3000",
-                            scrub: 1,
-                        },
-                    }
-                );
-            });
+        // Parallax Effect - Disable on mobile for performance
+        if (!isMobile) {
+            const images = sectionRef.current?.querySelectorAll(".product-image");
+            if (images) {
+                images.forEach((img) => {
+                    gsap.fromTo(img,
+                        { x: -30 }, // Reduced range to prevent gaps
+                        {
+                            x: 30,
+                            ease: "none",
+                            force3D: true,
+                            scrollTrigger: {
+                                trigger: triggerRef.current,
+                                start: "top top",
+                                end: "+=3000",
+                                scrub: 1,
+                            },
+                        }
+                    );
+                });
+            }
         }
     }, { scope: triggerRef });
 

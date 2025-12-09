@@ -11,6 +11,8 @@ import EmailSignup from './components/EmailSignup';
 import Starfield from './components/Starfield';
 import CustomCursor from './components/CustomCursor';
 import SocialDock from './components/SocialDock';
+import ScrollIndicator from './components/ScrollIndicator';
+import StoryProgress, { StoryProgressHandle } from './components/StoryProgress';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -23,6 +25,8 @@ export default function Home() {
   const kainotRef = useRef<HTMLHeadingElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
   const flashRef = useRef<HTMLDivElement>(null); // New Flash Ref
+  const scrollIndicatorRef = useRef<HTMLDivElement>(null);
+  const storyProgressRef = useRef<StoryProgressHandle>(null);
 
   // New refs for Star Wars animation
   const crawlContainerRef = useRef<HTMLDivElement>(null);
@@ -52,10 +56,26 @@ export default function Home() {
         trigger: containerRef.current,
         start: 'top top',
         end: '+=12000', // Increased scroll length to ensure crawl finishes
-        scrub: isMobileDevice ? 2 : 1.2, // Less frequent updates on mobile
+        scrub: true, // Instant scrubbing to match user scroll exactly
         pin: true,
         refreshPriority: 1, // Ensure this calculates first
       },
+      onUpdate: function () {
+        // Timeline update logic if needed
+      }
+    });
+
+    // Global Scroll Tracker for Story Progress
+    ScrollTrigger.create({
+      trigger: 'body',
+      start: 'top top',
+      end: 'bottom bottom',
+      scrub: true,
+      onUpdate: (self) => {
+        if (storyProgressRef.current) {
+          storyProgressRef.current.setProgress(self.progress);
+        }
+      }
     });
 
     // --- SETUP: Sharper, Random Particles ---
@@ -76,6 +96,10 @@ export default function Home() {
       ease: 'power2.in',
       force3D: true,
     })
+      .to(scrollIndicatorRef.current, {
+        opacity: 0,
+        duration: 0.5,
+      }, 0) // Fade out scroll indicator immediately
       .to(logoRef.current, {
         scale: 100, // Faster, bigger zoom
         opacity: 0,
@@ -310,6 +334,7 @@ export default function Home() {
   return (
     <>
       <CustomCursor />
+      <StoryProgress ref={storyProgressRef} count={7} />
       <SocialDock />
       <main className="bg-black min-h-screen w-full overflow-x-hidden relative selection:bg-white/20">
         <Preloader />
@@ -421,6 +446,12 @@ export default function Home() {
               className="w-32 h-32 md:w-64 md:h-64 object-contain"
             />
           </div>
+
+          {/* Scroll Indicator - Fades out on scroll */}
+          <div ref={scrollIndicatorRef} className="absolute bottom-10 left-0 w-full z-50 pointer-events-none mix-blend-difference">
+            <ScrollIndicator />
+          </div>
+
           <StarWarsCrawl ref={crawlTextRef} containerRef={crawlContainerRef} />
         </div>
       </main>

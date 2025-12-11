@@ -11,39 +11,23 @@ gsap.registerPlugin(ScrollTrigger);
 const products = [
     {
         id: 1,
-        title: "Ethereal Gaze",
-        image: "https://images.unsplash.com/photo-1539109136881-3be0616acf4b?q=80&w=1887&auto=format&fit=crop",
-        description: "Capturing the soul of modern aesthetics.",
+        image: "/products/product1.png",
     },
     {
         id: 2,
-        title: "Urban Avant",
-        image: "https://images.unsplash.com/photo-1509631179647-0177331693ae?q=80&w=1888&auto=format&fit=crop",
-        description: "Streetwear redefined for the bold.",
+        image: "/products/product2.png",
     },
     {
         id: 3,
-        title: "Velvet Noir",
-        image: "https://images.unsplash.com/photo-1500917293891-ef795e70e1f6?q=80&w=1887&auto=format&fit=crop",
-        description: "Elegance in the shadows.",
+        image: "/products/product3.png",
     },
     {
         id: 4,
-        title: "Editorial Drift",
-        image: "https://images.unsplash.com/photo-1483985988355-763728e1935b?q=80&w=2070&auto=format&fit=crop",
-        description: "High fashion meets raw emotion.",
+        image: "/products/product4.png",
     },
     {
         id: 5,
-        title: "Chromatic Pulse",
-        image: "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=1895&auto=format&fit=crop",
-        description: "Vibrant styles for a vibrant life.",
-    },
-    {
-        id: 6,
-        title: "Silk & Stone",
-        image: "https://images.unsplash.com/photo-1496747611176-843222e1e57c?q=80&w=2073&auto=format&fit=crop",
-        description: "Soft textures, hard edges.",
+        image: "/products/product5.png",
     },
 ];
 
@@ -113,18 +97,10 @@ const ProductScroll = () => {
 
                         <Image
                             src={product.image}
-                            alt={product.title}
+                            alt={`Product ${product.id}`}
                             fill
                             className="product-image object-cover scale-[1.35] transition-transform duration-700 group-hover:scale-[1.45]" // Increased base scale and hover scale
                         />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent flex flex-col justify-end p-6 md:p-8 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-                            <h2 className="text-2xl md:text-4xl font-black font-display text-white mb-2 tracking-tighter uppercase translate-y-8 group-hover:translate-y-0 transition-transform duration-500 delay-100 ease-out">
-                                {product.title}
-                            </h2>
-                            <p className="text-gray-300 text-sm md:text-base font-sans font-light tracking-wide translate-y-8 group-hover:translate-y-0 transition-transform duration-500 delay-200 ease-out">
-                                {product.description}
-                            </p>
-                        </div>
                     </div>
                 ))}
             </div>

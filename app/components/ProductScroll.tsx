@@ -29,6 +29,10 @@ const products = [
         id: 5,
         image: "/products/product5.png",
     },
+    {
+        id: 6,
+        image: "/products/product6.png",
+    },
 ];
 
 const ProductScroll = () => {

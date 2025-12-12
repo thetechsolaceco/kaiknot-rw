@@ -19,7 +19,7 @@ const products = [
     },
     {
         id: 3,
-        image: "/products/aproduct3.png",
+        image: "/products/aproduct6.png",
     },
     {
         id: 4,
@@ -31,7 +31,7 @@ const products = [
     },
     {
         id: 6,
-        image: "/products/aproduct6.png",
+        image: "/products/aproduct3.png",
     },
 ];
 

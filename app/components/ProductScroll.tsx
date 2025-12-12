@@ -11,27 +11,27 @@ gsap.registerPlugin(ScrollTrigger);
 const products = [
     {
         id: 1,
-        image: "/products/product1.png",
+        image: "/products/aproduct1.png",
     },
     {
         id: 2,
-        image: "/products/product2.png",
+        image: "/products/aproduct2.png",
     },
     {
         id: 3,
-        image: "/products/product3.png",
+        image: "/products/aproduct3.png",
     },
     {
         id: 4,
-        image: "/products/product4.png",
+        image: "/products/aproduct4.png",
     },
     {
         id: 5,
-        image: "/products/product5.png",
+        image: "/products/aproduct5.png",
     },
     {
         id: 6,
-        image: "/products/product6.png",
+        image: "/products/aproduct6.png",
     },
 ];
 
